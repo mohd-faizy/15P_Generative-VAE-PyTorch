@@ -1,0 +1,16 @@
+# Core Deep Learning & Computer Vision
+torch
+torchvision
+
+# Numerical & Scientific Computing
+numpy
+matplotlib
+Pillow
+
+# Progress Tracking & Notebook Utilities
+tqdm
+ipywidgets
+
+# Jupyter Environment
+ipykernel   
+jupyterlab   
