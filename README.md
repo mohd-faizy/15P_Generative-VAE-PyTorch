@@ -21,7 +21,7 @@
 
 </div>
 
-> **PyTorch Implementation** · Character Font & CelebA Synthesis · Deep Generative Modeling
+> **PyTorch Implementation** · Character Font Synthesis · Deep Generative Modeling
 
 Implementation of **Variational Autoencoders (VAEs)** in PyTorch for high-ratio image compression, generative character synthesis, and continuous latent space interpolation.
 
@@ -101,7 +101,7 @@ Input (50×50) → Flatten → FC(2500→1000) → ReLU
 
 | Parameter | Value |
 | ----------- | ------- |
-| Epochs | 1,000 |
+| Epochs | 10 (session default) / 5 (in-repo checkpoint) |
 | Batch Size | 64 |
 | Latent Dimension | 32 |
 | Learning Rate | 1e-3 |
@@ -115,32 +115,44 @@ Input (50×50) → Flatten → FC(2500→1000) → ReLU
 ```
 ├── Image_Compression_and_Generation_using_Variational_Autoencoders.ipynb
 │                                       # Main notebook with theory, code, and visualizations
-├── assets/
+├── assets/                             # Documentation diagrams and visual showcase
 │   ├── banner.png                      # Project banner
 │   ├── vae.png                         # VAE architecture diagram
 │   ├── preprocessing_sample.png        # Input preprocessing (Original vs 50x50 grayscale)
-│   ├── training_loss_curves.png        # Loss convergence history
+│   ├── training_loss_curves.png        # Loss convergence history (loss plots)
 │   ├── reconstruction_comparison.png   # Original vs reconstructed font characters
 │   ├── generative_synthesis.png        # Synthetic font generation from latent space
 │   └── latent_space_interpolation.png  # Continuous latent space morphing
-├── HOW_TO_FONTS.txt                    # Instructions for downloading the Font dataset
+├── Models/                             # Trained model weights & loss records
+│   ├── vae_latest.model                # Latest trained VAE weights
+│   ├── epoch_5.model                   # Checkpoint saved after epoch 5
+│   ├── training_losses.txt             # Recorded epoch training loss values
+│   └── validation_losses.txt           # Recorded epoch validation loss values
+├── Results/                            # Epoch evaluation samples & reconstructions
+│   ├── reconstruction_*.png            # Original vs. reconstructed validation grids
+│   └── sample_*.png                    # Random latent space samples per epoch
+├── Font/                               # Character Font Images dataset (train / val splits)
+│   ├── all/                            # 62 classes, 62,992 total font characters
+│   ├── train/                          # Training partition (61,752 images)
+│   └── val/                            # Validation partition (1,240 images: 20 per class)
+├── Font.zip                            # Bundled font dataset archive
+├── HOW_TO_FONTS.txt                    # Instructions & download source for the Font dataset
 ├── requirements.txt                    # Python dependencies
-├── pyproject.toml                      # Project configuration (uv/pip)
+├── pyproject.toml                      # Project configuration (uv / pip)
+├── uv.lock                             # Resolved dependency lockfile
 ├── main.py                            # Entry point (placeholder)
 ├── LICENSE                            # MIT License
-└── README.md                          # This file
+└── README.md                          # Project documentation
 ```
 
-### Generated at Runtime
+### Directory Overview
 
-| Directory | Contents |
-| ----------- | ---------- |
-| `Font/` | Character Font Images dataset (train/val splits) |
-| `Models/` | Training checkpoints saved every 50 epochs |
-| `Results/` | Reconstruction comparisons and generated samples |
-| `Presaved_Models/` | Pre-trained weights (download separately) |
-| `Presaved_Results/` | Pre-computed result images (download separately) |
-| `Celebs/` | CelebA reconstruction images (download separately) |
+| Directory | Status | Description |
+| ----------- | ------ | ----------- |
+| `Font/` | Local / Dataset | Character Font Images dataset (62 classes across alphanumeric characters) |
+| `Models/` | In Repository | Pre-trained model checkpoints (`epoch_5.model`, `vae_latest.model`) and loss histories |
+| `Results/` | In Repository | Visual evaluation outputs (reconstructions and generative samples per epoch) |
+| `assets/` | In Repository | High-resolution architectural diagrams and visual showcases for documentation |
 
 ---
 
@@ -160,15 +172,19 @@ cd generative-VAE-pytorch
 
 # Create virtual environment and install dependencies
 uv venv
-uv add -r requirements.txt
+uv pip install -r requirements.txt
+# Alternatively with pip:
+# python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
 
 # Register Jupyter kernel
 .venv/Scripts/python -m ipykernel install --user --name "vae-pytorch" --display-name "VAE PyTorch"
+# On Linux/macOS:
+# .venv/bin/python -m ipykernel install --user --name "vae-pytorch" --display-name "VAE PyTorch"
 ```
 
-### Dataset
+### Dataset Setup
 
-Download the **Character Font Images** dataset from the Google Drive link provided in [`HOW_TO_FONTS.txt`](HOW_TO_FONTS.txt) and unzip it into the `Font/all/` directory.
+The **Character Font Images** dataset archive (`Font.zip`) is included directly in the repository. The notebook automatically detects and extracts it into `Font/all/` upon execution. If you need to re-download the original archive, follow the Google Drive link provided in [`HOW_TO_FONTS.txt`](HOW_TO_FONTS.txt).
 
 ### Run the Notebook
 
@@ -188,7 +204,7 @@ Download the **Character Font Images** dataset from the Google Drive link provid
 | **Task 4** | Creating PyTorch DataLoaders |
 | **Task 5** | VAE architecture definition and model instantiation |
 | **Task 6** | Training loop with loss tracking and periodic checkpointing |
-| **Task 7** | Results: loss curves, character generation, latent interpolation, CelebA |
+| **Task 7** | Results: loss curves, character generation, latent interpolation, validation reconstruction |
 
 <div align="center">
   <img src="assets/preprocessing_sample.png" width="500" alt="Data Preprocessing Pipeline: Original to 50x50 Grayscale" style="border-radius: 10px;">
@@ -201,16 +217,16 @@ Download the **Character Font Images** dataset from the Google Drive link provid
 
 ### Training & Loss Convergence
 
-Training across 950 epochs demonstrates steady convergence of both reconstruction loss (BCE) and latent space regularization (KL divergence).
+Training demonstrates steady convergence of both reconstruction loss (Binary Cross-Entropy) and latent space regularization (Kullback-Leibler divergence), dropping total loss from ~461.4 down to ~279.5 within 5 epochs.
 
 <div align="center">
   <img src="assets/training_loss_curves.png" width="850" alt="Training and Validation Loss Curves" style="border-radius: 10px;">
-  <p><em>Full 950-epoch loss progression (left) and loss convergence detail (right)</em></p>
+  <p><em>Full training loss progression (left) and loss convergence detail (right) from trained checkpoints in <code>Models/</code></em></p>
 </div>
 
 ### Character Font Compression (32-D Latent Space)
 
-After training for 950 epochs, the VAE achieves high-fidelity reconstruction of font characters with a **78× compression ratio** (compressing 2,500 pixels into just 32 latent dimensions).
+The trained VAE achieves high-fidelity reconstruction of font characters with a **78× compression ratio** (compressing 2,500 pixels into just 32 latent dimensions, representing a 98.7% dimensionality reduction).
 
 <div align="center">
   <img src="assets/reconstruction_comparison.png" width="850" alt="Character Font Reconstruction Comparison" style="border-radius: 10px;">
@@ -235,10 +251,6 @@ Smoothly morphing between two characters by linearly interpolating in latent spa
   <p><em>Smooth latent space traversal morphing from Character A to Character B (t = 0.0 to 1.0)</em></p>
 </div>
 
-### CelebA Faces (500-D Latent Space)
-
-The same architecture scales to the CelebA dataset with a 500-dimensional latent space, progressively sharpening face reconstructions over 600 training epochs.
-
 ---
 
 ## References
@@ -247,8 +259,7 @@ The same architecture scales to the CelebA dataset with a 500-dimensional latent
 - [Stanford CS228 — Variational Inference](https://ermongroup.github.io/cs228-notes/inference/variational/)
 - [Video Lecture by Arxiv Insights](https://www.youtube.com/watch?v=P78QYjWh5sM)
 - [Official PyTorch VAE Example](https://github.com/pytorch/examples/tree/master/vae)
-- [Character Font Images Dataset (UCI)](http://archive.ics.uci.edu/ml/datasets/Character+Font+Images)
-- [CelebA Dataset](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html)
+- [Character Font Images Dataset (UCI)](https://archive.ics.uci.edu/dataset/279/character+font+images)
 
 ---
 
