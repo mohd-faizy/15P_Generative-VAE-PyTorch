@@ -99,7 +99,13 @@ Input (50×50) → Flatten → FC(2500→1000) → ReLU
 ├── Image_Compression_and_Generation_using_Variational_Autoencoders.ipynb
 │                                       # Main notebook with theory, code, and visualizations
 ├── assets/
-│   └── vae.png                         # VAE architecture diagram
+│   ├── banner.png                      # Project banner
+│   ├── vae.png                         # VAE architecture diagram
+│   ├── preprocessing_sample.png        # Input preprocessing (Original vs 50x50 grayscale)
+│   ├── training_loss_curves.png        # Loss convergence history
+│   ├── reconstruction_comparison.png   # Original vs reconstructed font characters
+│   ├── generative_synthesis.png        # Synthetic font generation from latent space
+│   └── latent_space_interpolation.png  # Continuous latent space morphing
 ├── HOW_TO_FONTS.txt                    # Instructions for downloading the Font dataset
 ├── requirements.txt                    # Python dependencies
 ├── pyproject.toml                      # Project configuration (uv/pip)
@@ -167,21 +173,50 @@ Download the **Character Font Images** dataset from the Google Drive link provid
 | **Task 6** | Training loop with loss tracking and periodic checkpointing |
 | **Task 7** | Results: loss curves, character generation, latent interpolation, CelebA |
 
+<div align="center">
+  <img src="assets/preprocessing_sample.png" width="500" alt="Data Preprocessing Pipeline: Original to 50x50 Grayscale" style="border-radius: 10px;">
+  <p><em>Task 2: Input normalization pipeline converting raw font images to 50×50 grayscale tensors</em></p>
+</div>
+
 ---
 
 ## Results
 
+### Training & Loss Convergence
+
+Training across 950 epochs demonstrates steady convergence of both reconstruction loss (BCE) and latent space regularization (KL divergence).
+
+<div align="center">
+  <img src="assets/training_loss_curves.png" width="850" alt="Training and Validation Loss Curves" style="border-radius: 10px;">
+  <p><em>Full 950-epoch loss progression (left) and loss convergence detail (right)</em></p>
+</div>
+
 ### Character Font Compression (32-D Latent Space)
 
-After training for 950 epochs, the VAE achieves high-fidelity reconstruction of font characters with a **78× compression ratio**.
+After training for 950 epochs, the VAE achieves high-fidelity reconstruction of font characters with a **78× compression ratio** (compressing 2,500 pixels into just 32 latent dimensions).
+
+<div align="center">
+  <img src="assets/reconstruction_comparison.png" width="850" alt="Character Font Reconstruction Comparison" style="border-radius: 10px;">
+  <p><em>Validation Evaluation: Original input characters (top row) vs. VAE decoded reconstructions from 32-D latent vectors (bottom row)</em></p>
+</div>
 
 ### Generative Synthesis
 
-Random samples from $z \sim \mathcal{N}(0, I)$ produce novel, realistic font characters never seen during training.
+Random samples from standard normal latent space $z \sim \mathcal{N}(0, I)$ passed through the decoder produce novel, realistic font characters never seen during training.
+
+<div align="center">
+  <img src="assets/generative_synthesis.png" width="850" alt="Generative Synthesis from Random Latent Samples" style="border-radius: 10px;">
+  <p><em>Synthetic font characters generated from purely random Gaussian latent vectors</em></p>
+</div>
 
 ### Latent Space Interpolation
 
-Smoothly morphing between two characters by linearly interpolating in latent space demonstrates the continuity and completeness of the learned representation.
+Smoothly morphing between two characters by linearly interpolating in latent space demonstrates the continuity and completeness of the learned representation without holes or collapse.
+
+<div align="center">
+  <img src="assets/latent_space_interpolation.png" width="850" alt="Latent Space Interpolation" style="border-radius: 10px;">
+  <p><em>Smooth latent space traversal morphing from Character A to Character B (t = 0.0 to 1.0)</em></p>
+</div>
 
 ### CelebA Faces (500-D Latent Space)
 
